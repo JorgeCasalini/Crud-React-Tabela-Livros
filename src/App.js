@@ -1,9 +1,23 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from "react-router-dom";
 import Menu from "./components/Menu";
 import TabelaLivros from "./components/TabelaLivros";
 import CadastrarLivros from "./components/CadastrarLivros";
 import NotFound from "./components/NotFound";
+
+// Componente para edição de livro usando o hook useParams
+const EditarLivro = ({ livros, editarLivro }) => {
+  const { isbnLivro } = useParams();  // Obtendo o isbn da URL
+  const livro = livros.find(livro => livro.isbn === isbnLivro); // Encontrando o livro com o ISBN
+
+  if (!livro) {
+    return <Navigate to="/" />; // Redireciona se o livro não for encontrado
+  }
+
+  return (
+    <CadastrarLivros editarLivro={editarLivro} livro={livro} />
+  );
+};
 
 class App extends Component {
   state = {
@@ -36,17 +50,29 @@ class App extends Component {
     });
   };
 
+  editarLivro = livro => {
+    const index = this.state.livros.findIndex( p => p.id === livro.id);
+    const livros = this.state.livros
+      .slice(0,index)
+      .concat(this.state.livros.slice(index = 1));
+    const newLivros = [...livros, livro].sort((a,b) => a.id - b.id);
+    this.setState({
+      livros: newLivros
+    });
+  };
+
   render() {
     return (
       <Router>
         <Menu />
         <Routes>
-          <Route path="/"
-            element={<TabelaLivros livros={this.state.livros} />} />
-          <Route path="/cadastrar"
-            element={<CadastrarLivros
-              inserirLivro={this.inserirLivro}
-              livro={{ id: 0, isbn: "", titulo: "", autor: "" }} />} />
+          <Route path="/" element={<TabelaLivros livros={this.state.livros} />} />
+          <Route path="/cadastrar" element={<CadastrarLivros
+            inserirLivro={this.inserirLivro}
+            livro={{ id: 0, isbn: "", titulo: "", autor: "" }} />} />
+          <Route path="/editar/:isbnLivro" element={<EditarLivro
+            livros={this.state.livros}
+            editarLivro={this.inserirLivro} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
