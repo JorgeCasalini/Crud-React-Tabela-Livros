@@ -50,15 +50,20 @@ class App extends Component {
     });
   };
 
-  editarLivro = livro => {
-    const index = this.state.livros.findIndex( p => p.id === livro.id);
-    const livros = this.state.livros
-      .slice(0,index)
-      .concat(this.state.livros.slice(index = 1));
-    const newLivros = [...livros, livro].sort((a,b) => a.id - b.id);
-    this.setState({
-      livros: newLivros
-    });
+  editarLivro = livroEditado => {
+    this.setState(prevState => ({
+      livros: prevState.livros.map(livro =>
+        livro.id === livroEditado.id ? { ...livroEditado } : livro
+      )
+    }));
+  };
+
+
+  removerLivro = livro => {
+    if (window.confirm("Remover esse livro ?")) {
+      const livros = this.state.livros.filter(p => p.isbn !== livro.isbn);
+      this.setState({ livros });
+    }
   };
 
   render() {
@@ -66,13 +71,17 @@ class App extends Component {
       <Router>
         <Menu />
         <Routes>
-          <Route path="/" element={<TabelaLivros livros={this.state.livros} />} />
+          <Route path="/" element={<TabelaLivros
+            livros={this.state.livros}
+            removerLivro={this.removerLivro} />
+          } />
           <Route path="/cadastrar" element={<CadastrarLivros
             inserirLivro={this.inserirLivro}
             livro={{ id: 0, isbn: "", titulo: "", autor: "" }} />} />
           <Route path="/editar/:isbnLivro" element={<EditarLivro
             livros={this.state.livros}
-            editarLivro={this.inserirLivro} />} />
+            editarLivro={this.editarLivro} />}
+            />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
