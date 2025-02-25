@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Menu from "./components/Menu";
 import TabelaLivros from "./components/TabelaLivros";
 import CadastrarLivros from "./components/CadastrarLivros";
@@ -28,15 +28,26 @@ class App extends Component {
       }
     ]
   };
+
+  inserirLivro = livro => {
+    livro.id = this.state.livros.length + 1;
+    this.setState({
+      livros: [...this.state.livros, livro]
+    });
+  };
+
   render() {
     return (
       <Router>
-        <Menu/>
+        <Menu />
         <Routes>
           <Route path="/"
-          element={ <TabelaLivros livros={this.state.livros} />} />
-          <Route path="/cadastrar" element={<CadastrarLivros />} />
-          <Route path="*" element={<NotFound />}/>
+            element={<TabelaLivros livros={this.state.livros} />} />
+          <Route path="/cadastrar"
+            element={<CadastrarLivros
+              inserirLivro={this.inserirLivro}
+              livro={{ id: 0, isbn: "", titulo: "", autor: "" }} />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     );
